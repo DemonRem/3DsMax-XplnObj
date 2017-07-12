@@ -27,8 +27,11 @@
 **  Contacts: www.steptosky.com
 */
 
+#pragma warning(push, 0)
+#include <max.h>
+#pragma warning(pop)
+
 #include "MainMenu.h"
-#include <cassert>
 #include "models/MdLinks.h"
 #include "ui/Factory.h"
 #include "common/Logger.h"
@@ -42,7 +45,7 @@ namespace presenter {
 	MainMenu::MainMenu(IView * view)
 		: mView(view) {
 
-		assert(mView);
+		DbgAssert(mView);
 		mView->signalDonate = &MdLinks::openDonate;
 		mView->signalUpdate = &MdLinks::openPluginBinary;
 		mView->signalDoc = &MdLinks::openDocBinary;
