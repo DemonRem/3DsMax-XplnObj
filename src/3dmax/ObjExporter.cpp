@@ -28,8 +28,10 @@
 */
 
 #include "ObjExporter.h "
+#include <memory>
 #include "Info.h"
 #include "common/String.h"
+#include "ui/Factory.h"
 
 /**************************************************************************************************/
 ////////////////////////////////////* Constructors/Destructor */////////////////////////////////////
@@ -44,8 +46,8 @@ ObjExporter::~ObjExporter() {}
 /**************************************************************************************************/
 
 int ObjExporter::DoExport(const TCHAR * name, ExpInterface * /*ei*/, Interface * ip, BOOL suppressPrompts, DWORD options) {
-	ui::DlgExport dlg;
-	presenter::Export exporter(&dlg);
+	std::unique_ptr<presenter::Export::IView> dlg(ui::Factory::cereateExportView());
+	presenter::Export exporter(dlg.get());
 	exporter.startExport(name, ip, suppressPrompts == TRUE, options == SCENE_EXPORT_SELECTED ? true : false);
 	return TRUE;
 }

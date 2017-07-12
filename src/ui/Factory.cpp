@@ -29,11 +29,13 @@
 
 #include "Factory.h"
 #include "DlgAbout.h"
-#include "main-menu/MainMenu.h"
 #include "UpdatedObjects.h"
 #include "gup/Settings.h"
 #include "gup/ObjCommon.h"
 #include "Info.h"
+
+#include "DlgExport.h"
+#include "main-menu/MainMenu.h"
 
 namespace ui {
 
@@ -71,6 +73,10 @@ namespace ui {
 
 	presenter::MainMenu::IView * Factory::cereateMainMenuView() {
 		return new MainMenu();
+	}
+
+	presenter::Export::IView * Factory::cereateExportView() {
+		return new DlgExport();
 	}
 
 	void Factory::sceneUpdateInfo(const TCHAR * text) {

@@ -31,6 +31,7 @@
 
 #include "presenters/MainMenu.h"
 #include "common/String.h"
+#include "presenters/Export.h"
 
 class INode;
 
@@ -52,15 +53,24 @@ namespace ui {
 	class Factory {
 	public:
 
+		//-------------------------------------------------------------------------
+
 		static void showAboutWindow();
 		static void showSettingsWindow();
 		static void showNotImplemented();
 		static void showVersionIncompatible();
 
-		static presenter::MainMenu::IView * cereateMainMenuView();
+		//-------------------------------------------------------------------------
 
 		static void showUpdatedObjects(const std::vector<INode *> & nodes);
 		static void sceneUpdateInfo(const TCHAR * text);
+
+		//-------------------------------------------------------------------------
+
+		static presenter::MainMenu::IView * cereateMainMenuView();
+		static presenter::Export::IView * cereateExportView();
+
+		//-------------------------------------------------------------------------
 
 	};
 
