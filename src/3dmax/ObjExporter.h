@@ -34,7 +34,6 @@
 #pragma warning(pop)
 
 #include "ui/DlgExport.h"
-#include "Converters/Converterer.h"
 
 /**************************************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -59,10 +58,6 @@ public:
 
 	BOOL SupportsOptions(int ext, DWORD options) override;
 	int DoExport(const TCHAR * name, ExpInterface * ei, Interface * i, BOOL suppressPrompts = FALSE, DWORD options = 0) override;
-
-private:
-
-	ui::DlgExport * mDlgMain = nullptr;
 
 };
 

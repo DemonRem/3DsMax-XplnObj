@@ -30,11 +30,6 @@
 #include "ObjExporter.h "
 #include "Info.h"
 #include "common/String.h"
-#include "resource/ResHelper.h"
-
-#pragma warning(push, 0)
-#include <iparamb2.h>
-#pragma warning(pop)
 
 /**************************************************************************************************/
 ////////////////////////////////////* Constructors/Destructor */////////////////////////////////////
@@ -49,11 +44,10 @@ ObjExporter::~ObjExporter() {}
 /**************************************************************************************************/
 
 int ObjExporter::DoExport(const TCHAR * name, ExpInterface * /*ei*/, Interface * ip, BOOL suppressPrompts, DWORD options) {
-	mDlgMain = new ui::DlgExport();
-	//ip->SetTime(TimeValue(0), TRUE);
-	mDlgMain->show(name, ip, suppressPrompts == TRUE, options == SCENE_EXPORT_SELECTED ? true : false);
-	delete mDlgMain;
-	return TRUE;
+	ui::DlgExport dlg;
+	presenter::Export exporter(&dlg);
+	int res = exporter.startExport(name, ip, suppressPrompts == TRUE, options == SCENE_EXPORT_SELECTED ? true : false);
+	return res ? TRUE : FALSE;
 }
 
 /**************************************************************************************************/

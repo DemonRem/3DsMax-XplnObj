@@ -35,10 +35,9 @@
 #include "ui/controls/Base.h"
 #include "ui/controls/CheckBox.h"
 #include "ui/controls/Edit.h"
-#include "Converters/Converterer.h"
 #include "common/Logger.h"
-#include "update/UpdateChecker.h"
 #include "controls/ExportObjList.h"
+#include "presenters/Export.h"
 
 namespace ui {
 
@@ -46,15 +45,23 @@ namespace ui {
 	//////////////////////////////////////////////////////////////////////////////////////////////////////////
 	/********************************************************************************************************/
 
-	class DlgExport {
+	class DlgExport : public presenter::Export::IView {
 	public:
 
 		DlgExport();
-		~DlgExport();
-
-		bool show(const TCHAR * inFileName, Interface * inIp, bool suppressPrompts, bool selectedOnly);
+		virtual ~DlgExport();
 
 	private:
+
+		//-------------------------------------------------------------------------
+		// IVIew
+
+		bool signalShowWindow(const presenter::Export::MainNodes & allMainNodes) override;
+		void signalExportFinished(bool successful) override;
+		void signalUpdateAvailable(const sts::SemVersion & version) override;
+
+		//-------------------------------------------------------------------------
+
 		typedef std::pair<INode *, int> NodeCollectionStruct;
 		typedef std::vector<NodeCollectionStruct> NodeCollection;
 
@@ -89,34 +96,20 @@ namespace ui {
 
 		//-------------------------------------------------------------------------
 
-		int startExport();
-		void collectMainNodes();
-		void collectMainNodes(INode * inRootNode, NodeCollection & outMains);
-		void printUpdateAvailability();
-		size_t selectedNodeCount();
+		bool startExport();
 		void slotSelObjChanged(int idx);
 
-		Converterer mConverterer;
-		TimeValue mTime = 0;
 		std::string mLogText;
-
-		Interface * mIp = nullptr;
-		const TCHAR * mExpFileName = nullptr;
-		bool mSuppressPrompts = false;
-		bool mSelectedOnly = false;
+		TimeValue mTime = 0;
 		bool mFinished = false;
-
 		static DlgExport * gExportDlg;
-
 		NodeCollection mMainNodesCollection;
 
 		//-------------------------------------------------------------------------
 
 		void saveConfigData();
 		void loadConfigData();
-
-		void saveLogRequest();
-		void exportFinished();
+		void saveLogRequest() const;
 
 		//-------------------------------------------------------------------------
 

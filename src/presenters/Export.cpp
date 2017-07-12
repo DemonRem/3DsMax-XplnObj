@@ -44,6 +44,26 @@
 namespace presenter {
 
 	/**************************************************************************************************/
+	//////////////////////////////////////////* Static area *///////////////////////////////////////////
+	/**************************************************************************************************/
+
+	inline sts::Str changeFileName(const TCHAR * inCurrPath, const TCHAR * inFileName) {
+		assert(inCurrPath);
+		assert(inFileName);
+		sts::Str outString(inCurrPath);
+
+		size_t pos = outString.find_last_of(_T("\\/"));
+		if (pos != sts::Str::npos) {
+			outString = outString.substr(0, pos);
+		}
+
+		outString.append(_T("\\"));
+		outString.append(inFileName);
+		outString.append(_T(".obj"));
+		return outString;
+	}
+
+	/**************************************************************************************************/
 	////////////////////////////////////* Constructors/Destructor */////////////////////////////////////
 	/**************************************************************************************************/
 
@@ -56,7 +76,7 @@ namespace presenter {
 		mView->signalAbout = &ui::Factory::showAboutWindow;
 
 		mView->signalSaveLog = [](const MSTR & where) { Logger::instance()->saveLog(where); };
-		mView->signalStartExport = std::bind(&Export::startExport, this);
+		mView->signalDoExport = std::bind(&Export::doExport, this, std::placeholders::_1);
 	}
 
 	/**************************************************************************************************/
@@ -116,8 +136,7 @@ namespace presenter {
 		UpdateChecker::Update upd = ObjCommon::instance()->updateInfo();
 		if (upd.valid) {
 			if (upd.error.empty()) {
-				// todo using settings current version
-				if (upd.version > SemVersion(XIO_VERSION_MAJOR, XIO_VERSION_MINOR, XIO_VERSION_PATCH)) {
+				if (upd.version > Settings::currentVersion()) {
 					mView->signalUpdateAvailable(upd.version);
 				}
 			}
@@ -131,7 +150,19 @@ namespace presenter {
 	//////////////////////////////////////////* Functions */////////////////////////////////////////////
 	/**************************************************************************************************/
 
-	bool Export::startExport(const MainNodes & selectedNodes) {
+	bool Export::startExport(const TCHAR * inFileName, Interface * inIp, bool suppressPrompts, bool selectedOnly) {
+		mIp = inIp;
+		mExpFileName = inFileName;
+		mSuppressPrompts = suppressPrompts;
+		mSelectedOnly = selectedOnly;
+		return mView->signalShowWindow(collectMainNodes());
+	}
+
+	/**************************************************************************************************/
+	//////////////////////////////////////////* Functions */////////////////////////////////////////////
+	/**************************************************************************************************/
+
+	bool Export::doExport(const MainNodes & selectedNodes) {
 		bool result = true;
 		mSelectedNodes = selectedNodes;
 		mTime = GetCOREInterface()->GetTime();
@@ -155,18 +186,20 @@ namespace presenter {
 		std::string mainFileName(sts::toMbString(mExpFileName));
 		bool produceDerivedFiles = mSelectedNodes.size() > 1;
 		CLMessage << "Found " << mNodes.size() << " main object. Selected " << mSelectedNodes.size();
-		for (auto currMainNode : mMainNodesCollection) {
-			if (!currMainNode.first) {
+		for (auto node : mNodes) {
+			if (!node) {
+				LError << "Node list contains null node";
 				continue;
 			}
-			if (!mLstObjects.isChecked(currMainNode.second)) {
-				CLMessage << "Object " << sts::toMbString(currMainNode.first->GetName()) << " is skipped.";
+
+			const TCHAR * nodeName = node->GetName();
+
+			if (!std::any_of(mSelectedNodes.begin(), mSelectedNodes.end(), [node](INode * n) { return n == node; })) {
+				CLMessage << "Object " << sts::toMbString(nodeName) << " is skipped.";
 				continue;
 			}
 
 			std::string exportFilePath(mainFileName);
-			const TCHAR * nodeName = currMainNode.first->GetName();
-
 			if (produceDerivedFiles) {
 				if (_tcslen(nodeName) < 1) {
 					CLError << "A main object has incorrect name. The name is used for creating the obj file name.";
@@ -178,9 +211,9 @@ namespace presenter {
 
 			xobj::ObjMain xMain;
 			ConverterUtils::toXTMatrix(ConverterUtils::TOOGL_MTX, xMain.pMatrix);
-			MainObjParamsWrapper mwrapper(currMainNode.first, GetCOREInterface()->GetTime(), FOREVER);
-			result = mConverterer.toXpln(&mwrapper, xMain) ? TRUE : FALSE;
-			if (result == FALSE) {
+			MainObjParamsWrapper mwrapper(node, GetCOREInterface()->GetTime(), FOREVER);
+			bool result = Converterer().toXpln(&mwrapper, xMain) ? TRUE : FALSE;
+			if (result == false) {
 				CLError << "Export object: \"" << sts::toMbString(nodeName) << "\" is FAILED";
 				break;
 			}
@@ -188,13 +221,8 @@ namespace presenter {
 			std::string signature = sts::MbStrUtils::joinStr(XIO_ORGANIZATION_NAME, " ", XIO_PROJECT_NAME, ": ",
 															XIO_VERSION_STRING, "-", XIO_RELEASE_TYPE, "+[", XIO_COMPILE_DATE, "]");
 			xMain.pExportOptions.setSignature(signature);
-
-			if (!xMain.exportToFile(exportFilePath)) {
-				CLError << "Export object: \"" << sts::toMbString(currMainNode.first->GetName()) << "\" is FAILED";
-			}
-			else {
-				CLMessage << "Export object: \"" << sts::toMbString(currMainNode.first->GetName()) << "\" is OK";
-			}
+			result = xMain.exportToFile(exportFilePath);
+			CLError << "Export object: \"" << sts::toMbString(nodeName) << (result ? "\" is OK" : "\" is FAILED");
 		}
 	}
 

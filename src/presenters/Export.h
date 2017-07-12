@@ -30,10 +30,8 @@
 */
 
 #include <functional>
-#include "additional/utils/BaseLogger.h"
 #include "Converters/Converterer.h"
 #include "additional/utils/SemVersion.h"
-#include "update/SemVersion.h"
 
 namespace presenter {
 
@@ -52,13 +50,14 @@ namespace presenter {
 		public:
 			virtual ~IView() = default;
 			std::function<void(const MSTR & where)> signalSaveLog;
-			std::function<bool(const MainNodes & selectedNodes)> signalStartExport;
+			std::function<bool(const MainNodes & selectedNodes)> signalDoExport;
 			std::function<void()> signalDonate;
 			std::function<void()> signalCheckForUpdate;
 			std::function<void()> signalAbout;
 
+			virtual bool signalShowWindow(const MainNodes & allMainNodes) = 0;
 			virtual void signalExportFinished(bool successful) = 0;
-			virtual void signalUpdateAvailable(const SemVersion & version) = 0;
+			virtual void signalUpdateAvailable(const sts::SemVersion & version) = 0;
 		};
 
 		//-------------------------------------------------------------------------
@@ -68,11 +67,15 @@ namespace presenter {
 
 		//-------------------------------------------------------------------------
 
+		bool startExport(const TCHAR * inFileName, Interface * inIp, bool suppressPrompts, bool selectedOnly);
+
+		//-------------------------------------------------------------------------
+
 	private:
 
 		IView * mView;
 
-		bool startExport(const MainNodes & nodes);
+		bool doExport(const MainNodes & nodes);
 		MainNodes collectMainNodes() const;
 		void printHeaderInfo() const;
 		bool checkOptions() const;
@@ -82,10 +85,9 @@ namespace presenter {
 		MainNodes mNodes;
 		MainNodes mSelectedNodes;
 
-		Converterer mConverterer;
 		TimeValue mTime = 0;
-
 		Interface * mIp = nullptr;
+
 		const TCHAR * mExpFileName = nullptr;
 		bool mSuppressPrompts = false;
 		bool mSelectedOnly = false;
