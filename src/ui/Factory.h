@@ -29,7 +29,7 @@
 **  Contacts: www.steptosky.com
 */
 
-#include "presenters/MainMenuPresenter.h"
+#include "presenters/MainMenu.h"
 #include "common/String.h"
 
 class INode;
@@ -57,7 +57,7 @@ namespace ui {
 		static void showNotImplemented();
 		static void showVersionIncompatible();
 
-		static MainMenuPresenter::IView * cereateMainMenuView();
+		static presenter::MainMenu::IView * cereateMainMenuView();
 
 		static void showUpdatedObjects(const std::vector<INode *> & nodes);
 		static void sceneUpdateInfo(const TCHAR * text);

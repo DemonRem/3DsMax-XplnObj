@@ -104,7 +104,7 @@ void ObjCommon::updateCheckWinCallback(HWND hwnd, UINT /*uMsg*/, UINT_PTR idEven
 DWORD ObjCommon::Start() {
 	//-- Mein Menu ---------------------------
 	mMainMenuView.reset(ui::Factory::cereateMainMenuView());
-	mMainMenuPresenter = std::make_unique<MainMenuPresenter>(mMainMenuView.get());
+	mMainMenuPresenter = std::make_unique<presenter::MainMenu>(mMainMenuView.get());
 	//----------------------------------------
 
 	mCloneNodeChunk = new CloneNodeChunk();

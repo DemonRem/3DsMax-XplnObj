@@ -69,7 +69,7 @@ namespace ui {
 	///////////////////////////////////////////* Functions *////////////////////////////////////////////
 	/**************************************************************************************************/
 
-	MainMenuPresenter::IView * Factory::cereateMainMenuView() {
+	presenter::MainMenu::IView * Factory::cereateMainMenuView() {
 		return new MainMenu();
 	}
 

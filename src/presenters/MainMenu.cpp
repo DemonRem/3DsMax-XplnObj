@@ -27,27 +27,30 @@
 **  Contacts: www.steptosky.com
 */
 
-#include "MainMenuPresenter.h"
+#include "MainMenu.h"
 #include <cassert>
 #include "models/MdLinks.h"
 #include "ui/Factory.h"
 #include "common/Logger.h"
 
-/**************************************************************************************************/
-////////////////////////////////////* Constructors/Destructor */////////////////////////////////////
-/**************************************************************************************************/
+namespace presenter {
 
-MainMenuPresenter::MainMenuPresenter(IView * view)
-	: mView(view) {
+	/**************************************************************************************************/
+	////////////////////////////////////* Constructors/Destructor */////////////////////////////////////
+	/**************************************************************************************************/
 
-	assert(mView);
-	mView->signalDonate = &MdLinks::openDonate;
-	mView->signalUpdate = &MdLinks::openPluginBinary;
-	mView->signalDoc = &MdLinks::openDocBinary;
-	mView->signalAbout = &ui::Factory::showAboutWindow;
-	mView->signalSettings = &ui::Factory::showSettingsWindow;
+	MainMenu::MainMenu(IView * view)
+		: mView(view) {
+
+		assert(mView);
+		mView->signalDonate = &MdLinks::openDonate;
+		mView->signalUpdate = &MdLinks::openPluginBinary;
+		mView->signalDoc = &MdLinks::openDocBinary;
+		mView->signalAbout = &ui::Factory::showAboutWindow;
+		mView->signalSettings = &ui::Factory::showSettingsWindow;
+	}
+
+	/**************************************************************************************************/
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	/**************************************************************************************************/
 }
-
-/**************************************************************************************************/
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/**************************************************************************************************/
