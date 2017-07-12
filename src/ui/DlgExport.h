@@ -98,12 +98,15 @@ namespace ui {
 
 		bool startExport();
 		void slotSelObjChanged(int idx);
+		void printUpdateAvailable();
 
 		std::string mLogText;
 		TimeValue mTime = 0;
 		bool mFinished = false;
 		static DlgExport * gExportDlg;
 		NodeCollection mMainNodesCollection;
+		presenter::Export::MainNodes mNodes;
+		sts::SemVersion mRemoteVersion;
 
 		//-------------------------------------------------------------------------
 

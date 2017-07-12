@@ -49,15 +49,61 @@ namespace presenter {
 		class IView {
 		public:
 			virtual ~IView() = default;
+
+			//-------------------------------------------------------------------------
+
+			/*!
+			 * \details Call it if you want to save current log file.
+			 * \param [in] where file path where the log will be saved.
+			 */
 			std::function<void(const MSTR & where)> signalSaveLog;
+
+			/*!
+			 * \details Call it for running exporting process.
+			 * \param [in] selectedNodes list of main nodes to export.
+			 * \return True if successful otherwise false.
+			 */
 			std::function<bool(const MainNodes & selectedNodes)> signalDoExport;
+
+			/*!
+			 * \details Call it when you want to donate.
+			 */
 			std::function<void()> signalDonate;
+
+			/*!
+			 * \details Call it when you want to check for update.
+			 */
 			std::function<void()> signalCheckForUpdate;
+
+			/*!
+			 * \details Call it when you want to show information about the plugin.
+			 */
 			std::function<void()> signalAbout;
 
+			//-------------------------------------------------------------------------
+
+			/*!
+			 * \details It called when there is a request to open the export window.
+			 * \param allMainNodes [in] list of all the main nodes to export.
+			 * \return True if exporting is successful otherwise false.
+			 *         Usually it should return result from \link signalDoExport \endlink
+			 */
 			virtual bool signalShowWindow(const MainNodes & allMainNodes) = 0;
+
+			/*!
+			 * \details It is called when exporting is finished.
+			 * \param successful [in] exporting result 
+			 */
 			virtual void signalExportFinished(bool successful) = 0;
+
+			/*!
+			 * \details It is called if there is s newer plugin version.
+			 *          It is checked after export.
+			 * \param version [in]
+			 */
 			virtual void signalUpdateAvailable(const sts::SemVersion & version) = 0;
+
+			//-------------------------------------------------------------------------
 		};
 
 		//-------------------------------------------------------------------------
@@ -79,7 +125,7 @@ namespace presenter {
 		MainNodes collectMainNodes() const;
 		void printHeaderInfo() const;
 		bool checkOptions() const;
-		void printUpdateAvailability() const;
+		void checkUpdateAvailability() const;
 		void processNodes();
 
 		MainNodes mNodes;

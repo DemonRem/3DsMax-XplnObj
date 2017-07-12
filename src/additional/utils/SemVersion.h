@@ -74,6 +74,17 @@ namespace sts {
 		// @{
 
 		/*!
+		 * \details Checks whether the version is valid.
+		 *          Invalid version has all values as 0.
+		 * \note 'pre release' and 'build' strings are not used for checking.
+		 */
+		UtilsExp operator bool() const;
+
+		// @}
+		//---------------------------------------------------------------
+		// @{
+
+		/*!
 		 * \param [in] other
 		 * \param [in] preRelease compare pre-release part.
 		 * \param [in] build compare build part.

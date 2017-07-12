@@ -46,8 +46,8 @@ ObjExporter::~ObjExporter() {}
 int ObjExporter::DoExport(const TCHAR * name, ExpInterface * /*ei*/, Interface * ip, BOOL suppressPrompts, DWORD options) {
 	ui::DlgExport dlg;
 	presenter::Export exporter(&dlg);
-	int res = exporter.startExport(name, ip, suppressPrompts == TRUE, options == SCENE_EXPORT_SELECTED ? true : false);
-	return res ? TRUE : FALSE;
+	exporter.startExport(name, ip, suppressPrompts == TRUE, options == SCENE_EXPORT_SELECTED ? true : false);
+	return TRUE;
 }
 
 /**************************************************************************************************/

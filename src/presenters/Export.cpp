@@ -132,7 +132,7 @@ namespace presenter {
 		return true;
 	}
 
-	void Export::printUpdateAvailability() const {
+	void Export::checkUpdateAvailability() const {
 		UpdateChecker::Update upd = ObjCommon::instance()->updateInfo();
 		if (upd.valid) {
 			if (upd.error.empty()) {
@@ -155,7 +155,8 @@ namespace presenter {
 		mExpFileName = inFileName;
 		mSuppressPrompts = suppressPrompts;
 		mSelectedOnly = selectedOnly;
-		return mView->signalShowWindow(collectMainNodes());
+		mNodes = collectMainNodes();
+		return mView->signalShowWindow(mNodes);
 	}
 
 	/**************************************************************************************************/
@@ -176,7 +177,7 @@ namespace presenter {
 		//----------------------------------
 		processNodes();
 		//----------------------------------
-		printUpdateAvailability();
+		checkUpdateAvailability();
 		//----------------------------------
 		mView->signalExportFinished(true);
 		return result;
@@ -188,7 +189,7 @@ namespace presenter {
 		CLMessage << "Found " << mNodes.size() << " main object. Selected " << mSelectedNodes.size();
 		for (auto node : mNodes) {
 			if (!node) {
-				LError << "Node list contains null node";
+				LError << "Node list contains a null node";
 				continue;
 			}
 

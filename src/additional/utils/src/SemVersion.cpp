@@ -51,10 +51,10 @@ namespace sts {
 	// (2) . minor version (0 or unlimited number)
 	// (3) . patch version (0 or unlimited number)
 	// (4) optional pre-release following a dash consisting of a alphanumeric letters
-	//     and hyphens using a non-capture subclause to exclude the dash from the 
+	//     and hyphens using a non-capture sub clause to exclude the dash from the 
 	//     pre-release string
 	// (5) optional build following a plus consisting of alphanumeric letters and
-	//     hyphens using a non-capture subclause to exclude the plus from the build string
+	//     hyphens using a non-capture sub clause to exclude the plus from the build string
 	static auto __semverRegex__ = std::regex("^(0|[1-9][0-9]*)" // (1)
 											"\\.(0|[1-9][0-9]*)" // (2)
 											"\\.(0|[1-9][0-9]*)" // (3)
@@ -84,6 +84,14 @@ namespace sts {
 	SemVersion::SemVersion(const uint major, const uint minor, const uint patch,
 							const std::string & preRelease, const std::string & build) {
 		set(major, minor, patch, preRelease, build);
+	}
+
+	/**************************************************************************************************/
+	//////////////////////////////////////////* Functions */////////////////////////////////////////////
+	/**************************************************************************************************/
+
+	SemVersion::operator bool() const {
+		return major != 0 || minor != 0 || patch != 0;
 	}
 
 	/**************************************************************************************************/

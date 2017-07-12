@@ -27,20 +27,17 @@
 **  Contacts: www.steptosky.com
 */
 
-#include "DlgExport.h "
 #pragma warning(push, 0)
 #include <max.h>
 #include <3dsmaxport.h>
 #pragma warning(pop)
 
+#include "DlgExport.h "
 #include "common/String.h"
 #include "resource/resource.h"
-#include "common/Logger.h"
+#include "resource/ResHelper.h"
 #include "objects/main/MainObjParamsWrapper.h"
 #include "gup/ObjCommon.h"
-#include <windows.h>
-#include <commctrl.h>
-#include "resource/ResHelper.h"
 
 namespace ui {
 
@@ -200,13 +197,7 @@ namespace ui {
 		mFinished = false;
 		mErrorCount = 0;
 		mWarningCount = 0;
-
-		for (const auto n : allMainNodes) {
-			MainObjParamsWrapper wrapper(n, mTime, FOREVER);
-			int idx = mLstObjects.addItem(n->GetName());
-			mMainNodesCollection.emplace_back(NodeCollectionStruct(n, idx));
-			mLstObjects.checkItem(idx, wrapper.isExportEnable());
-		}
+		mNodes = allMainNodes;
 
 		INT_PTR res = DialogBoxParam(ResHelper::hInstance, MAKEINTRESOURCE(DLG_EXPORT), GetCOREInterface()->GetMAXHWnd(),
 									callBack, reinterpret_cast<LPARAM>(this));
@@ -214,18 +205,49 @@ namespace ui {
 		return res != 0;
 	}
 
-	void DlgExport::signalExportFinished(bool successful) {
+	void DlgExport::signalExportFinished(bool) {
 		mFinished = true;
 		mBtnSaveLog.enable();
+		mBtnOk.setText(_T("Close"));
+		mBtnCancel.setText(_T("Close"));
 	}
 
 	void DlgExport::signalUpdateAvailable(const sts::SemVersion & version) {
-		mBtnCheckUpdate.setText("Get update");
-		CLWarning << "New version '" << version.toString(false, false)
-		<< "' is available. Please, press the '"
-		<< sts::toMbString(mBtnCheckUpdate.text())
-		<< "' button to get the new version." << "\r\n"
-		<< "\tSee the 'changelog.txt' file there to get the information about the changes.";
+		mRemoteVersion = version;
+	}
+
+	/**************************************************************************************************/
+	//////////////////////////////////////////* Functions */////////////////////////////////////////////
+	/**************************************************************************************************/
+	
+	void DlgExport::printUpdateAvailable() {
+		if (mRemoteVersion) {
+			mBtnCheckUpdate.setText("Get update");
+			CLWarning << "New version '" << mRemoteVersion.toString(false, false)
+				<< "' is available. Please, press the '"
+				<< sts::toMbString(mBtnCheckUpdate.text())
+				<< "' button to get the new version." << "\r\n"
+				<< "\tSee the 'changelog.txt' file there to get the information about the changes.";
+		}
+	}
+
+	bool DlgExport::startExport() {
+		Logger::registerUserConsoleCallback(&logCallback);
+		mTime = GetCOREInterface()->GetTime();
+		mRemoteVersion.clear();
+		//----------------------------------
+		presenter::Export::MainNodes selectedNodes;
+		for (auto currMainNode : mMainNodesCollection) {
+			if (currMainNode.first && mLstObjects.isChecked(currMainNode.second)) {
+				selectedNodes.emplace_back(currMainNode.first);
+			}
+		}
+		bool result = signalDoExport(selectedNodes);
+		//----------------------------------
+		CLMessage << "Export completed with:\r\n\t" << mErrorCount << " errors \r\n\t" << mWarningCount << " warnings";
+		printUpdateAvailable();
+		Logger::unregisterUserConsoleCallback(&logCallback);
+		return result;
 	}
 
 	/**************************************************************************************************/
@@ -261,6 +283,13 @@ namespace ui {
 		mBtnDonate.setToolTip(_T("If you like this plugin please, support the development."));
 		mBtnCheckUpdate.setToolTip(_T("Visit the download page for seeing if a new version is available."));
 		mChkAutoExport.setToolTip(_T("If it is enabled then the export will be auto-started without pressing the 'Export' button. Value is saved with the scene."));
+
+		for (const auto n : mNodes) {
+			MainObjParamsWrapper wrapper(n, mTime, FOREVER);
+			int idx = mLstObjects.addItem(n->GetName());
+			mMainNodesCollection.emplace_back(NodeCollectionStruct(n, idx));
+			mLstObjects.checkItem(idx, wrapper.isExportEnable());
+		}
 
 		loadConfigData();
 		mDlgMain.show(true);
@@ -334,29 +363,6 @@ namespace ui {
 		if (res) {
 			signalSaveLog(fileName);
 		}
-	}
-
-	/**************************************************************************************************/
-	////////////////////////////////////* Constructors/Destructor */////////////////////////////////////
-	/**************************************************************************************************/
-
-	bool DlgExport::startExport() {
-		Logger::registerUserConsoleCallback(&logCallback);
-		mTime = GetCOREInterface()->GetTime();
-		//----------------------------------
-		presenter::Export::MainNodes selectedNodes;
-		for (auto currMainNode : mMainNodesCollection) {
-			if (currMainNode.first && mLstObjects.isChecked(currMainNode.second)) {
-				selectedNodes.emplace_back(currMainNode.first);
-			}
-		}
-		bool result = signalDoExport(selectedNodes);
-		//----------------------------------
-		CLMessage << "Export completed with:\r\n\t" << mErrorCount << " errors \r\n\t" << mWarningCount << " warnings";
-		Logger::unregisterUserConsoleCallback(&logCallback);
-		mBtnOk.setText(_T("Close"));
-		mBtnCancel.setText(_T("Close"));
-		return result;
 	}
 
 	/**************************************************************************************************/
