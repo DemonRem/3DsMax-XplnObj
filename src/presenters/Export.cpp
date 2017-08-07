@@ -40,6 +40,8 @@
 #include "converters/ConverterUtils.h"
 #include "update/UpdateChecker.h"
 #include "gup/ObjCommon.h"
+#include "objects/main/MainObjParamsWrapper.h"
+#include "Converters/Converterer.h"
 
 namespace presenter {
 

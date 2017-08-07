@@ -66,7 +66,7 @@ if(USE_CONAN_CMAKE_MULTI)
 else()
 	include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
 endif()
-conan_define_targets()
+conan_basic_setup("TARGETS")
 
 #----------------------------------------------------------------------------------#
 #//////////////////////////////////////////////////////////////////////////////////#
